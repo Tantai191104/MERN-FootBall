@@ -1,0 +1,7 @@
+export {default as LoginOutlined} from "@ant-design/icons/LoginOutlined"
+export {default as UserAddOutlined} from "@ant-design/icons/UserAddOutlined"
+export {default as FacebookFilled} from "@ant-design/icons/FacebookFilled"
+export {default as TwitterSquareFilled} from "@ant-design/icons/TwitterSquareFilled"
+export {default as InstagramFilled} from "@ant-design/icons/InstagramFilled"
+export {default as LockOutlined} from "@ant-design/icons/LockOutlined"
+export {default as UserOutlined} from "@ant-design/icons/UserOutlined"
