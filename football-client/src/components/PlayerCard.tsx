@@ -6,7 +6,7 @@ type PlayerCardListProps = {
 
 function PlayerCard({ players }: PlayerCardListProps) {
   return (
-    <div className="max-w-7xl mx-auto mt-4 mb-4 px-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+    <div className="max-w-6xl mx-auto mt-4 mb-4 px-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
       {players.map((player) => (
         <div
           key={player._id}

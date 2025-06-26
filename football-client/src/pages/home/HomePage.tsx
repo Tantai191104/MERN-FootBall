@@ -105,7 +105,7 @@ function HomePage() {
     <div>
       <Banner />
       {/* Section header */}
-      <section className="max-w-7xl mx-auto mt-20 mb-12 px-4">
+      <section className="max-w-6xl mx-auto mt-20 mb-12 px-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
           <div>
             <p className="text-sm text-gray-500">Featured Players</p>

@@ -7,7 +7,7 @@ function Banner() {
   ];
   return (
     <section
-      className="py-16 px-6 rounded-3xl shadow-lg mt-8 max-w-7xl mx-auto"
+      className="py-16 px-6 rounded-3xl shadow-lg mt-8 max-w-6xl mx-auto"
       style={{
         backgroundImage:
           "url('https://images.unsplash.com/photo-1575361204480-aadea25e6e68?q=80&w=1471&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",

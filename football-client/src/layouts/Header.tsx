@@ -6,7 +6,7 @@ function Header() {
   const navigation = useNavigate()
   return (
     <header className="sticky top-0 z-50 backdrop-blur-md bg-white/30 shadow-md px-5 py-3 rounded-b-[52px] transition-transform">
-      <div className="container mx-auto flex items-center justify-between gap-13 py-4">
+      <div className="container mx-auto flex items-center justify-between gap-13 p-6">
         <img src={Logo} alt="Logo" className="h-12 w-auto" />
         <nav className="flex flex-1 items-center space-x-8">
           <Link

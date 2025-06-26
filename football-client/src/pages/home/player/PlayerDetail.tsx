@@ -14,7 +14,7 @@ const player = {
   _id: "p1",
   playerName: "Lionel Messi",
   image:
-    "https://upload.wikimedia.org/wikipedia/commons/6/68/Leo_Messi_%28cropped%29.jpg",
+    "https://bshc.com.vn/wp-content/uploads/2023/05/a5291a47-27f7-4d8d-b087-11263a97295b-1.jpg",
   cost: 150000000,
   isCaptain: true,
   infomation:
@@ -40,7 +40,7 @@ function PlayerDetail() {
     setIsModalOpen(false);
   };
   return (
-    <div className="max-w-7xl mx-auto flex flex-col gap-10">
+    <div className="max-w-6xl mx-auto flex flex-col gap-10 p-6">
       <div className="flex flex-col md:flex-row gap-8 items-start">
         <section className="w-full md:w-1/2 relative">
           <img
