@@ -5,3 +5,4 @@ export {default as TwitterSquareFilled} from "@ant-design/icons/TwitterSquareFil
 export {default as InstagramFilled} from "@ant-design/icons/InstagramFilled"
 export {default as LockOutlined} from "@ant-design/icons/LockOutlined"
 export {default as UserOutlined} from "@ant-design/icons/UserOutlined"
+export {default as GoogleOutlined} from "@ant-design/icons/GoogleOutlined"

@@ -6,11 +6,18 @@ function Header() {
   const navigation = useNavigate()
   return (
     <header className="sticky top-0 z-50 backdrop-blur-md bg-white/30 shadow-md px-5 py-3 rounded-b-[52px] transition-transform">
+<<<<<<< Updated upstream
       <div className="container mx-auto flex items-center justify-between gap-13 p-6">
         <img src={Logo} alt="Logo" className="h-12 w-auto" />
+=======
+      <div className="container mx-auto flex items-center justify-between gap-13 py-4">
+        <a href="/">
+          <img src={Logo} alt="Logo" className="h-12 w-auto bg-white/30" />
+        </a>
+>>>>>>> Stashed changes
         <nav className="flex flex-1 items-center space-x-8">
           <Link
-            to="#"
+            to="/"
             className="font-semibold text-[#003459] hover:text-[#003459]/80"
           >
             Home

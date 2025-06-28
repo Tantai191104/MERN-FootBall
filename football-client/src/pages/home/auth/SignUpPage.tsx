@@ -2,15 +2,21 @@ import { Form, Input, Button, Typography, Card } from "antd";
 import { LockOutlined, UserOutlined } from "../../../components/Icon/AntdIcons";
 
 const { Title, Text } = Typography;
-type signUpValues = {
+
+type SignUpValues = {
   username: string;
+  name: string;
   password: string;
   confirmPassword: string;
+  YOB: number;
 };
+
 export default function SignUpPage() {
-  const handleSignUp = (values: signUpValues) => {
+  const [form] = Form.useForm();
+
+  const handleSignUp = (values: SignUpValues) => {
     console.log("Sign up info:", values);
-    // Gọi API signup ở đây
+    // Gọi API ở đây
   };
 
   return (
@@ -26,11 +32,15 @@ export default function SignUpPage() {
           <Text type="secondary">Sign up to get started</Text>
         </div>
 
-        <Form layout="vertical" onFinish={handleSignUp}>
+        <Form form={form} layout="vertical" onFinish={handleSignUp}>
+          {/* Username */}
           <Form.Item
             label="Username"
             name="username"
-            rules={[{ required: true, message: "Please enter your username!" }]}
+            rules={[
+              { required: true, message: "Please enter your username!" },
+              { min: 4, message: "Username must be at least 4 characters" },
+            ]}
           >
             <Input
               size="large"
@@ -39,6 +49,22 @@ export default function SignUpPage() {
             />
           </Form.Item>
 
+          {/* Full Name */}
+          <Form.Item
+            label="Full Name"
+            name="name"
+            rules={[
+              { required: true, message: "Please enter your full name!" },
+            ]}
+          >
+            <Input
+              size="large"
+              prefix={<UserOutlined />}
+              placeholder="Enter your full name"
+            />
+          </Form.Item>
+
+          {/* Password */}
           <Form.Item
             label="Password"
             name="password"
@@ -46,6 +72,7 @@ export default function SignUpPage() {
               { required: true, message: "Please enter your password!" },
               { min: 6, message: "Password must be at least 6 characters" },
             ]}
+            hasFeedback
           >
             <Input.Password
               size="large"
@@ -54,17 +81,51 @@ export default function SignUpPage() {
             />
           </Form.Item>
 
+          {/* Confirm Password */}
           <Form.Item
             label="Confirm Password"
-            name="password"
+            name="confirmPassword"
+            dependencies={["password"]}
+            hasFeedback
             rules={[
-              { required: true, message: "Please confirm your password" },
+              { required: true, message: "Please confirm your password!" },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue("password") === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(
+                    new Error("Passwords do not match!")
+                  );
+                },
+              }),
+            ]}
+          >
+            <Input.Password
+              size="large"
+              prefix={<LockOutlined />}
+              placeholder="Confirm your password"
+            />
+          </Form.Item>
+
+          {/* YOB */}
+          <Form.Item
+            label="Year of Birth"
+            name="YOB"
+            rules={[
+              { required: true, message: "Please enter your year of birth!" },
+              {
+                pattern: /^[0-9]{4}$/,
+                message: "Enter a valid 4-digit year",
+              },
             ]}
           >
             <Input
               size="large"
-              prefix={<LockOutlined />}
-              placeholder="Confirm your password"
+              placeholder="e.g. 2000"
+              type="number"
+              min={1900}
+              max={new Date().getFullYear()}
             />
           </Form.Item>
 

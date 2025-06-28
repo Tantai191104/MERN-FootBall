@@ -1,11 +1,12 @@
 import { LockOutlined, UserOutlined } from "../../../components/Icon/AntdIcons";
+import { FcGoogle } from "../../../components/Icon/ReactIcons";
 import { Form, Input, Button, Typography, Card } from "antd";
 
 const { Title, Text } = Typography;
 type LoginValues = {
-    userName : string,
-    password : string,
-}
+  userName: string;
+  password: string;
+};
 
 export default function LoginPage() {
   const handleLogin = (values: LoginValues) => {
@@ -59,7 +60,7 @@ export default function LoginPage() {
               className="w-full"
               style={{
                 backgroundColor: "#C0EB6A",
-                marginTop:"12px",
+                marginTop: "12px",
                 color: "#485550",
                 fontWeight: 600,
                 borderRadius: "8px",
@@ -69,7 +70,20 @@ export default function LoginPage() {
             </Button>
           </Form.Item>
         </Form>
-
+        <Button
+          icon={<FcGoogle size={20} />}
+          htmlType="submit"
+          size="large"
+          className="w-full"
+          style={{
+            backgroundColor: "#ffff",
+            color: "#485550",
+            fontWeight: 600,
+            borderRadius: "8px",
+          }}
+        >
+          Sign Up with Google
+        </Button>
         <div className="text-center mt-8">
           <Text type="secondary">Don’t have an account?</Text>
           <a href="/auth/signUp" className="ml-2 text-[#485550] font-semibold">
