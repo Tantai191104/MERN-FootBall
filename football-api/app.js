@@ -7,7 +7,8 @@ var logger = require("morgan");
 
 // import routes
 const playerRouter = require("./routes/playerRoute");
-
+const teamRouter = require("./routes/teamRoute");
+const authRouter = require("./routes/authRoute");
 var app = express();
 
 // view engine setup
@@ -22,7 +23,8 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // use routes
 app.use("/players", playerRouter);
-
+app.use("/teams", teamRouter);
+app.use("/auth", authRouter);
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));

@@ -20,7 +20,8 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-[#C0EB6A] to-[#485550] px-4">
+   <div className="flex items-center justify-center px-4">
+      <div className="relative p-2 rounded-2xl bg-gradient-to-r from-[#C0EB6A] to-[#485550] max-w-md w-full shadow-2xl">
       <Card
         className="w-full max-w-md shadow-2xl rounded-2xl"
         bodyStyle={{ padding: "40px" }}
@@ -154,6 +155,7 @@ export default function SignUpPage() {
           </a>
         </div>
       </Card>
+    </div>
     </div>
   );
 }

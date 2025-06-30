@@ -34,7 +34,8 @@ const ProfilePage: React.FC = () => {
         className="w-full max-w-4xl"
         bordered={false}
         style={{
-          background: "linear-gradient(to bottom right, #ecfdf5, #d1fae5)",
+          background:
+            "linear-gradient(to right, rgba(192, 235, 106, 0.7), #485550)",
           borderRadius: "20px",
           padding: "32px",
           border: "1px solid #d1fae5",
@@ -47,7 +48,7 @@ const ProfilePage: React.FC = () => {
           <div
             style={{
               display: "inline-block",
-              backgroundColor: "#ccfbf1",
+              backgroundColor: "rgba(192, 235, 106, 0.7)",
               padding: "12px 28px",
               borderRadius: "14px",
               boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
@@ -57,7 +58,7 @@ const ProfilePage: React.FC = () => {
             <Title
               level={2}
               style={{
-                color: "#022c22",
+                color: "#ffff",
                 fontWeight: 800,
                 fontSize: "32px",
                 marginBottom: 0,
@@ -78,7 +79,15 @@ const ProfilePage: React.FC = () => {
           tabBarStyle={{ fontWeight: 600, fontSize: 16 }}
         >
           {/* Tab 1: Member Info */}
-          <TabPane tab="Member Information" key="1" icon={<UserOutlined />}>
+          <TabPane
+            tab={
+              <span style={{ color: "#ffffff", fontWeight: 600 }}>
+                <UserOutlined style={{ marginRight: 8 }} />
+                Member Information
+              </span>
+            }
+            key="1"
+          >
             <div className="flex flex-col items-center gap-6 mt-8 mb-4">
               <Avatar
                 size={100}
@@ -123,7 +132,15 @@ const ProfilePage: React.FC = () => {
           </TabPane>
 
           {/* Tab 2: Change Password */}
-          <TabPane tab="Change Password" key="2" icon={<LockOutlined />}>
+          <TabPane
+            tab={
+              <span style={{ color: "#ffffff", fontWeight: 600 }}>
+                <LockOutlined style={{ marginRight: 8 }} />
+                Change Password
+              </span>
+            }
+            key="2"
+          >
             <div className="flex justify-center mt-8 mb-4">
               <Form
                 form={form}
@@ -187,12 +204,15 @@ const ProfilePage: React.FC = () => {
 
                 <Form.Item className="text-center mt-8">
                   <Button
-                    type="primary"
-                    htmlType="submit"
-                    className="w-full text-base py-2"
+                    className="w-full"
                     style={{
                       backgroundColor: "#064e3b",
                       borderColor: "#064e3b",
+                      color: "#fff",
+                      fontSize: "16px",
+                      padding: "16px",
+                      borderRadius: "8px",
+                      transition: "all 0.3s ease-in-out",
                     }}
                     onMouseOver={(e) =>
                       (e.currentTarget.style.backgroundColor = "#022c22")
