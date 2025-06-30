@@ -1,5 +1,5 @@
-import { LockOutlined, UserOutlined } from "../../../components/Icon/AntdIcons";
-import { FcGoogle } from "../../../components/Icon/ReactIcons";
+import { LockOutlined, UserOutlined } from "../../components/Icon/AntdIcons";
+import { FcGoogle } from "../../components/Icon/ReactIcons";
 import { Form, Input, Button, Typography, Card } from "antd";
 
 const { Title, Text } = Typography;

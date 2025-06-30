@@ -1,5 +1,5 @@
 import { Card, Rate } from "antd";
-import type { Comment } from "../../../model/Types";
+import type { Comment } from "../../model/Types";
 
 type Props = {
   comments: Comment[];

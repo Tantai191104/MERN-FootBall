@@ -4,8 +4,8 @@
 import { useState } from "react";
 import PlayerDetailInfo from "./PlayerDetailInfo";
 import { message } from "antd";
-import CommentModal from "../../../components/CommentModal";
 import PlayerCommentList from "./PlayerCommentList";
+import CommentModal from "../../components/CommentModal";
 
 // type Props = {
 //   player: Player;

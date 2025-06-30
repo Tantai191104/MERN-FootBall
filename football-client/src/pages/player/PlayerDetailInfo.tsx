@@ -1,11 +1,11 @@
 import { Tag } from "antd";
-import type { Player } from "../../../model/Types";
+import type { Player } from "../../model/Types";
 type Props = {
   player: Player;
   isOpenModal: () => void;
 };
 
-function PlayerDetailInfo({ player , isOpenModal }: Props) {
+function PlayerDetailInfo({ player, isOpenModal }: Props) {
   return (
     <section className="w-full md:w-1/2 space-y-4 p-6 rounded-2xl border border-[#C0EB6A] shadow-md bg-white">
       <h1 className="text-4xl font-extrabold text-[#485550] mb-3">

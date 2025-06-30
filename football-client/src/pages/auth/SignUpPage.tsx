@@ -1,5 +1,5 @@
 import { Form, Input, Button, Typography, Card } from "antd";
-import { LockOutlined, UserOutlined } from "../../../components/Icon/AntdIcons";
+import { LockOutlined, UserOutlined } from "../../components/Icon/AntdIcons";
 
 const { Title, Text } = Typography;
 
