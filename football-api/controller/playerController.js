@@ -1,4 +1,3 @@
-
 const Player = require("../models/players");
 const { sendResponse } = require("../utils/apiResponse");
 
@@ -100,6 +99,138 @@ exports.deletePlayer = async (req, res) => {
 
     await Player.deleteOne({ _id: playerId });
     return sendResponse(res, 200, true, null, "Player deleted successfully");
+  } catch (error) {
+    return sendResponse(res, 500, false, null, error.message);
+  }
+};
+
+exports.addAComment = async (req, res) => {
+  try {
+    const { rating, content } = req.body;
+    const playerId = req.params.id;
+    const memberId = req.user?.memberId;
+
+    if (!mongoose.Types.ObjectId.isValid(playerId)) {
+      return sendResponse(res, 400, false, null, "Invalid player ID");
+    }
+
+    if (!rating || !content) {
+      return sendResponse(
+        res,
+        400,
+        false,
+        null,
+        "Rating and content are required"
+      );
+    }
+
+    const player = await Player.findById(playerId);
+
+    if (!player) {
+      return sendResponse(res, 404, false, null, "Player not found");
+    }
+    const hasCommented = player.comments.some(
+      (comment) => comment.author.toString() === memberId
+    );
+
+    if (hasCommented) {
+      return sendResponse(
+        res,
+        400,
+        false,
+        null,
+        "You have already commented on this player"
+      );
+    }
+    const newComment = {
+      rating,
+      content,
+      author: memberId,
+    };
+
+    player.comments.push(newComment);
+    await player.save();
+
+    return sendResponse(
+      res,
+      201,
+      true,
+      newComment,
+      "Comment added successfully"
+    );
+  } catch (error) {
+    return sendResponse(res, 500, false, null, error.message);
+  }
+};
+
+exports.editAComment = async (req, res) => {
+  try {
+    const { rating, content } = req.body;
+    const playerId = req.params.playerId;
+    const memberId = req.user?.memberId;
+
+    if (!mongoose.Types.ObjectId.isValid(playerId)) {
+      return sendResponse(res, 400, false, null, "Invalid player ID");
+    }
+
+    if (!rating || !content) {
+      return sendResponse(res, 400, false, null, "Rating and content are required");
+    }
+
+    const player = await Player.findById(playerId);
+
+    if (!player) {
+      return sendResponse(res, 404, false, null, "Player not found");
+    }
+
+    const comment = player.comments.find(
+      (c) => c.author.toString() === memberId
+    );
+
+    if (!comment) {
+      return sendResponse(res, 400, false, null, "You have not commented yet");
+    }
+
+    comment.rating = rating;
+    comment.content = content;
+
+    await player.save();
+
+    return sendResponse(res, 200, true, comment, "Comment updated successfully");
+  } catch (error) {
+    return sendResponse(res, 500, false, null, error.message);
+  }
+};
+
+exports.deleteAComment = async (req, res) => {
+  try {
+    const playerId = req.params.playerId;
+    const memberId = req.user?.memberId;
+
+    if (!mongoose.Types.ObjectId.isValid(playerId)) {
+      return sendResponse(res, 400, false, null, "Invalid player ID");
+    }
+
+    const player = await Player.findById(playerId);
+    if (!player) {
+      return sendResponse(res, 404, false, null, "Player not found");
+    }
+
+    const existingComment = player.comments.find(
+      (comment) => comment.author.toString() === memberId
+    );
+
+    if (!existingComment) {
+      return sendResponse(res, 400, false, null, "You have not commented yet");
+    }
+
+    player.comments = player.comments.filter(
+      (comment) => comment.author.toString() !== memberId
+    );
+
+    await player.save();
+
+    return sendResponse(res, 200, true, null, "Comment deleted successfully");
   } catch (error) {
     return sendResponse(res, 500, false, null, error.message);
   }
