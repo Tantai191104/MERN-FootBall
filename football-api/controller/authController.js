@@ -41,6 +41,7 @@ exports.signIn = async (req, res) => {
         member: {
           id: existingMember._id,
           membername: existingMember.membername,
+          isAdmin: existingMember.isAdmin,
         },
       },
       "Login successful"
@@ -81,4 +82,3 @@ exports.signUp = async (req, res) => {
     return sendResponse(res, 500, false, null, error.message);
   }
 };
-

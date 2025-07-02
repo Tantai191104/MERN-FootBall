@@ -1,17 +1,32 @@
+import { toast } from "react-toastify";
 import { LockOutlined, UserOutlined } from "../../components/Icon/AntdIcons";
 import { FcGoogle } from "../../components/Icon/ReactIcons";
 import { Form, Input, Button, Typography, Card } from "antd";
+import { login } from "../../services/authService";
+import { useAuthStore } from "../../stores/useAuthStore";
+import { useNavigate } from "react-router-dom";
 
 const { Title, Text } = Typography;
+
 type LoginValues = {
-  userName: string;
+  membername: string;
   password: string;
 };
 
 export default function LoginPage() {
-  const handleLogin = (values: LoginValues) => {
-    console.log("Login info:", values);
-    // Gọi API login ở đây
+  const navigation = useNavigate();
+  const setAuth = useAuthStore((s) => s.setAuth);
+
+  const handleLogin = async (values: LoginValues) => {
+    const res = await login(values);
+
+    if (res.success) {
+      setAuth(res.data.member, res.data.token);
+      toast.success("Login successful!");
+      navigation("/");
+    } else {
+      toast.error(res.message || "Login failed.");
+    }
   };
 
   return (
@@ -28,10 +43,10 @@ export default function LoginPage() {
             <Text type="secondary">Please login to your account</Text>
           </div>
 
-          <Form layout="vertical" onFinish={handleLogin}>
+          <Form<LoginValues> layout="vertical" onFinish={handleLogin}>
             <Form.Item
               label="Username"
-              name="username"
+              name="membername"
               rules={[
                 { required: true, message: "Please enter your username!" },
               ]}
@@ -75,13 +90,14 @@ export default function LoginPage() {
               </Button>
             </Form.Item>
           </Form>
+
           <Button
             icon={<FcGoogle size={20} />}
-            htmlType="submit"
+            htmlType="button"
             size="large"
             className="w-full"
             style={{
-              backgroundColor: "#ffff",
+              backgroundColor: "#fff",
               color: "#485550",
               fontWeight: 600,
               borderRadius: "8px",
@@ -89,6 +105,7 @@ export default function LoginPage() {
           >
             Sign Up with Google
           </Button>
+
           <div className="text-center mt-8">
             <Text type="secondary">Don’t have an account?</Text>
             <a

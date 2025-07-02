@@ -6,19 +6,22 @@ import LoginPage from "./pages/auth/LoginPage";
 import SignUpPage from "./pages/auth/SignUpPage";
 import PlayerDetail from "./pages/player/PlayerDetail";
 import ProfilePage from "./pages/profile/ProfilePage";
-
+import { ToastContainer } from "react-toastify";
 const BaseLayout = lazy(() => import("./layouts/BaseLayout"));
 function App() {
   return (
-    <Routes>
-      <Route element={<BaseLayout />}>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/player" element={<PlayerDetail />} />
-         <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/auth/login" element={<LoginPage />} />
-        <Route path="/auth/signUp" element={<SignUpPage />} />
-      </Route>
-    </Routes>
+    <>
+      <Routes>
+        <Route element={<BaseLayout />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/player" element={<PlayerDetail />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/auth/login" element={<LoginPage />} />
+          <Route path="/auth/signUp" element={<SignUpPage />} />
+        </Route>
+      </Routes>
+      <ToastContainer position="top-right" autoClose={3000} />
+    </>
   );
 }
 

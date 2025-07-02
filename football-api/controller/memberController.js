@@ -5,7 +5,6 @@ const bcrypt = require("bcrypt");
 exports.changePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword, confirmNewPassword } = req.body;
-    // 🧩 Lấy ID từ token/session (ví dụ JWT middleware đã giải mã và gán vào req.user)
     const memberId = req.user?.memberId;
     if (!memberId) {
       return sendResponse(res, 401, false, null, "Unauthorized");
@@ -50,6 +49,47 @@ exports.changePassword = async (req, res) => {
     await member.save();
 
     return sendResponse(res, 200, true, null, "Password changed successfully");
+  } catch (error) {
+    return sendResponse(res, 500, false, null, error.message);
+  }
+};
+
+exports.updateProfile = async (req, res) => {
+  try {
+    const { name, YOB } = req.body;
+
+    if (!name || !YOB) {
+      return sendResponse(res, 400, false, null, "Name and YOB are required");
+    }
+
+    const memberId = req.user?.memberId;
+    if (!memberId) {
+      return sendResponse(
+        res,
+        401,
+        false,
+        null,
+        "Unauthorized or missing user ID"
+      );
+    }
+
+    const updatedMember = await Member.findByIdAndUpdate(
+      memberId,
+      { name, YOB },
+      { new: true }
+    );
+
+    if (!updatedMember) {
+      return sendResponse(res, 404, false, null, "Member not found");
+    }
+
+    return sendResponse(
+      res,
+      200,
+      true,
+      updatedMember,
+      "Profile updated successfully"
+    );
   } catch (error) {
     return sendResponse(res, 500, false, null, error.message);
   }
