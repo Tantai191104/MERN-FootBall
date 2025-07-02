@@ -27,3 +27,8 @@ export const fetchAllPlayer = async (
   const res = await api.post("/players", query);
   return res.data;
 };
+
+export const fetchPlayerById = async (id: string) : Promise<ApiResponse<Player>> => {
+  const res = await api.get(`/players/${id}`);
+  return res.data;
+};

@@ -43,7 +43,7 @@ exports.getAllPlayers = async (req, res) => {
 exports.getPlayerById = async (req, res) => {
   try {
     const playerId = req.params.playerId;
-    const player = await Player.findById(playerId);
+    const player = await Player.findById(playerId).populate("team");
     if (!player) {
       return sendResponse(res, 404, false, null, "Player not found");
     }

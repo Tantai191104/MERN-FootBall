@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import {
   Tabs,
   Form,
@@ -11,8 +11,6 @@ import {
 } from "antd";
 import { LockOutlined, UserOutlined } from "../../components/Icon/AntdIcons";
 import { useAuthStore } from "../../stores/useAuthStore";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 
 const { TabPane } = Tabs;
 const { Title } = Typography;
@@ -24,15 +22,8 @@ type ChangePasswordValues = {
 };
 
 const ProfilePage: React.FC = () => {
-  const navigation = useNavigate();
   const [form] = Form.useForm();
   const user = useAuthStore((state) => state.user);
-  useEffect(() => {
-    if (user == null) {
-      toast.warn("You must be login to acess this page")
-      navigation("/");
-    } 
-  }, [user, navigation]);
   const handlePasswordChange = (values: ChangePasswordValues) => {
     console.log("Password change submitted:", values);
     // TODO: Call API here

@@ -1,16 +1,16 @@
 export interface Team {
-  _id?: string;
+  _id: string;
   teamName: string;
   createdAt?: string;
   updatedAt?: string;
 }
 export interface Player {
-  _id?: string;
+  _id: string;
   playerName: string;
   image: string;
   cost: number;
   isCaptain: boolean;
-  infomation: string;
+  information: string;
   comments: Comment[];
   team: Team;
   createdAt?: string;

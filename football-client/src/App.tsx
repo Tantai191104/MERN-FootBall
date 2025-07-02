@@ -14,7 +14,7 @@ function App() {
       <Routes>
         <Route element={<BaseLayout />}>
           <Route path="/" element={<HomePage />} />
-          <Route path="/player:playerId" element={<PlayerDetail />} />
+          <Route path="/player/:playerId" element={<PlayerDetail />} />
           <Route
             path="/profile"
             element={

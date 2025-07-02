@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import type { Player } from "../model/Types";
 
 type PlayerCardListProps = {
@@ -5,6 +6,11 @@ type PlayerCardListProps = {
 };
 
 function PlayerCard({ players }: PlayerCardListProps) {
+    const navigate = useNavigate(); 
+  const handleViewProfile = (id: string) => {
+    navigate(`/player/${id}`);
+  };
+
   return (
     <div className="max-w-6xl mx-auto mt-4 mb-4 px-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
       {players.map((player) => (
@@ -43,7 +49,7 @@ function PlayerCard({ players }: PlayerCardListProps) {
             <p className="text-sm text-[#485550] font-semibold mb-4">
               Transfer Fee : ${player.cost.toLocaleString()}
             </p>
-            <button className="w-full py-2 bg-[#C0EB6A] text-[#485550] rounded-xl text-sm font-semibold hover:bg-[#b5e155] cursor-pointer transition">
+            <button onClick={() => handleViewProfile(player._id)} className="w-full py-2 bg-[#C0EB6A] text-[#485550] rounded-xl text-sm font-semibold hover:bg-[#b5e155] cursor-pointer transition">
               View Profile
             </button>
           </div>
