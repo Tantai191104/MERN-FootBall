@@ -1,66 +1,10 @@
+import { useEffect, useState } from "react";
 import Banner from "../../components/Banner";
 import PlayerCard from "../../components/PlayerCard";
 import type { Player, Team } from "../../model/Types";
 import { Pagination, Select } from "antd";
 import Search from "antd/es/input/Search";
-const players: Player[] = [
-  {
-    _id: "p1",
-    playerName: "Lionel Messi",
-    image:
-      "https://upload.wikimedia.org/wikipedia/commons/6/68/Leo_Messi_%28cropped%29.jpg",
-    cost: 150000000,
-    isCaptain: true,
-    infomation:
-      "Legendary Argentinian forward known for his dribbling and vision.",
-    comments: [],
-    team: {
-      _id: "t1",
-      teamName: "Inter Miami",
-      createdAt: "2023-05-01T10:00:00Z",
-      updatedAt: "2023-08-01T12:00:00Z",
-    },
-    createdAt: "2025-06-01T10:15:00Z",
-    updatedAt: "2025-06-01T11:00:00Z",
-  },
-  {
-    _id: "p2",
-    playerName: "Kevin De Bruyne",
-    image:
-      "https://encrypted-tbn2.gstatic.com/licensed-image?q=tbn:ANd9GcTJcoM0jTN70w410PFgmV36-GnB6G2z4ORt_hPwPXxaC5qx9gYOqKjjjQuAovlou55lQdMRDvDuClpb5ig",
-    cost: 120000000,
-    isCaptain: false,
-    infomation: "Belgian midfielder with world-class passing and long shots.",
-    comments: [],
-    team: {
-      _id: "t2",
-      teamName: "Manchester City",
-      createdAt: "2022-01-10T09:00:00Z",
-      updatedAt: "2023-09-12T14:30:00Z",
-    },
-    createdAt: "2025-06-02T08:30:00Z",
-    updatedAt: "2025-06-02T09:10:00Z",
-  },
-  {
-    _id: "p3",
-    playerName: "Kylian Mbappé",
-    image:
-      "https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcQSIsgX-nhcPT7-kBXWFUQWe6meEuasovfTfg156eHUasPFqZ5LjzLe_5geLOESBlOeG_roTsyRPpDKYuc",
-    cost: 180000000,
-    isCaptain: false,
-    infomation:
-      "French striker known for explosive speed and clinical finishing.",
-    comments: [],
-    team: {
-      _id: "t3",
-      teamName: "Paris Saint-Germain",
-      createdAt: "2021-06-20T15:00:00Z",
-      updatedAt: "2024-03-22T17:00:00Z",
-    },
-    createdAt: "2025-06-03T13:45:00Z",
-    updatedAt: "2025-06-03T14:30:00Z",
-  },
-];
+import { fetchAllPlayer, type Query } from "../../services/playerService";
 const teams: Team[] = [
   {
     _id: "t1",
@@ -101,6 +45,32 @@ const teams: Team[] = [
 ];
 
 function HomePage() {
+  const [players, setPlayers] = useState<Player[]>();
+  const [query, setQuery] = useState<Query>({
+    playerName: null,
+    team: null,
+    pageInfo: {
+      pagg: 1,
+      pageSize: 8,
+      totalPage: null,
+    },
+  });
+
+  const getAllPlayer = async () => {
+    try {
+      const res = await fetchAllPlayer(query);
+      if (res.success) {
+        setPlayers(res.data.players);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getAllPlayer();
+  }, []);
+  console.log(players);
   return (
     <div>
       <Banner />
@@ -140,10 +110,20 @@ function HomePage() {
         </div>
       </section>
 
-      <section id="players-section">
-        <PlayerCard players={players} />
-      </section>
-      <Pagination style={{marginTop : 4}} align="center" defaultCurrent={1} total={50} />
+      {Array.isArray(players) && players.length > 0 ? (
+        <section id="players-section">
+          <PlayerCard players={players} />
+        </section>
+      ) : (
+        <p>No player remaining</p>
+      )}
+
+      <Pagination
+        style={{ marginTop: 4 }}
+        align="center"
+        defaultCurrent={1}
+        total={50}
+      />
     </div>
   );
 }

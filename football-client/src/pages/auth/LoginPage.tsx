@@ -22,6 +22,7 @@ export default function LoginPage() {
 
     if (res.success) {
       setAuth(res.data.member, res.data.token);
+      console.log(res.data.member)
       toast.success("Login successful!");
       navigation("/");
     } else {

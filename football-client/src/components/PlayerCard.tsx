@@ -37,7 +37,7 @@ function PlayerCard({ players }: PlayerCardListProps) {
               <span className="font-medium">Team</span>
               <span className="text-[#485550] text-lg leading-none">●</span>
               <span className="font-medium text-[#1e293b]">
-                {player.team.teamName}
+                {player.team?.teamName ?? "No Team"}
               </span>
             </p>
             <p className="text-sm text-[#485550] font-semibold mb-4">

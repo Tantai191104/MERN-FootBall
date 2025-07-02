@@ -41,6 +41,8 @@ exports.signIn = async (req, res) => {
         member: {
           id: existingMember._id,
           membername: existingMember.membername,
+          name: existingMember.name,
+          YOB : existingMember.YOB,
           isAdmin: existingMember.isAdmin,
         },
       },

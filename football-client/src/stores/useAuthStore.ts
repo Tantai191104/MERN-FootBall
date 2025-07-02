@@ -2,6 +2,8 @@ import { create } from "zustand";
 type User = {
   id: string;
   membername: string;
+  YOB: number;
+  name: string;
   isAdmin: boolean;
 };
 type AuthState = {

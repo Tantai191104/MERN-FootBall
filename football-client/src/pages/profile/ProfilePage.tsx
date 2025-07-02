@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Tabs,
   Form,
@@ -10,6 +10,9 @@ import {
   Typography,
 } from "antd";
 import { LockOutlined, UserOutlined } from "../../components/Icon/AntdIcons";
+import { useAuthStore } from "../../stores/useAuthStore";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const { TabPane } = Tabs;
 const { Title } = Typography;
@@ -21,8 +24,15 @@ type ChangePasswordValues = {
 };
 
 const ProfilePage: React.FC = () => {
+  const navigation = useNavigate();
   const [form] = Form.useForm();
-
+  const user = useAuthStore((state) => state.user);
+  useEffect(() => {
+    if (user == null) {
+      toast.warn("You must be login to acess this page")
+      navigation("/");
+    } 
+  }, [user, navigation]);
   const handlePasswordChange = (values: ChangePasswordValues) => {
     console.log("Password change submitted:", values);
     // TODO: Call API here
@@ -117,16 +127,19 @@ const ProfilePage: React.FC = () => {
                   paddingBottom: "4px",
                 }}
               >
-                {[
-                  { label: "Full Name", value: "John Doe" },
-                  { label: "Email", value: "johndoe@example.com" },
-                  { label: "Phone", value: "+1 234 567 890" },
-                  { label: "Address", value: "123 Main Street, New York" },
-                ].map((item, index) => (
-                  <Descriptions.Item key={index} label={item.label}>
-                    {item.value}
-                  </Descriptions.Item>
-                ))}
+                {user && (
+                  <>
+                    <Descriptions.Item label="Full Name">
+                      {user.name}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Memmber Name ">
+                      {user.membername}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Year of birth ">
+                      {user.YOB}
+                    </Descriptions.Item>
+                  </>
+                )}
               </Descriptions>
             </div>
           </TabPane>

@@ -9,6 +9,8 @@ export type LoginResponse = {
     id: string;
     membername: string;
     isAdmin: boolean;
+    YOB : number ; 
+    name : string ;
   };
 };
 
