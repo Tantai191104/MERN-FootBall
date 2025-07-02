@@ -13,9 +13,9 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
       toast.warn("You must be login to access this page");
       const timer = setTimeout(() => {
         setShouldRedirect(true);
-      }, 1000); // đủ thời gian hiển thị toast
+      }, 1000); 
 
-      return () => clearTimeout(timer); // cleanup nếu component unmount
+      return () => clearTimeout(timer); 
     }
   }, [isAuthenticated]);
 
@@ -24,7 +24,7 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   }
 
   if (!isAuthenticated) {
-    return null; // đợi toast hiển thị trước khi chuyển hướng  
+    return null;
   }
 
   return children;

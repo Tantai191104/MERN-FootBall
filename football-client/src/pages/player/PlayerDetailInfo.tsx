@@ -7,7 +7,7 @@ type Props = {
 };
 
 function PlayerDetailInfo({ player, isOpenModal }: Props) {
-  const navigation = useNavigate()
+  const navigation = useNavigate();
   return (
     <section className="w-full md:w-1/2 space-y-4 p-6 rounded-2xl border border-[#C0EB6A] shadow-md bg-white">
       <h1 className="text-4xl font-extrabold text-[#485550] mb-3">
@@ -19,7 +19,7 @@ function PlayerDetailInfo({ player, isOpenModal }: Props) {
         <strong>Team</strong>
         <span className="text-[#485550] text-lg leading-none">●</span>
         <span className="text-[#485550] font-medium">
-          {player.team.teamName}
+          {player.team?.teamName ?? "No Team"}
         </span>
       </p>
 
@@ -60,7 +60,10 @@ function PlayerDetailInfo({ player, isOpenModal }: Props) {
         >
           Add Comment
         </button>
-        <button onClick={() => navigation("/")} className="bg-[#C0EB6A] text-[#485550] rounded-xl px-6 py-3 text-sm font-semibold hover:bg-[#b5e155] transition cursor-pointer">
+        <button
+          onClick={() => navigation("/")}
+          className="bg-[#C0EB6A] text-[#485550] rounded-xl px-6 py-3 text-sm font-semibold hover:bg-[#b5e155] transition cursor-pointer"
+        >
           Back to Players
         </button>
       </div>

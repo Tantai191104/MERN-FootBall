@@ -33,12 +33,14 @@ function Header() {
           >
             Home
           </Link>
-          <Link
-            to="/profile"
-            className="font-semibold text-[#003459] hover:text-[#003459]/80"
-          >
-            Profile
-          </Link>
+          {user && (
+            <Link
+              to="/profile"
+              className="font-semibold text-[#003459] hover:text-[#003459]/80"
+            >
+              Profile
+            </Link>
+          )}
 
           {user?.isAdmin && (
             <>

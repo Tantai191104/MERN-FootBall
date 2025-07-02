@@ -21,6 +21,12 @@ export type ResponsePlayer = {
   };
 };
 
+export type commentPayload = {
+  id : string ;
+  content: string;
+  rating: number;
+};
+
 export const fetchAllPlayer = async (
   query: Query
 ): Promise<ApiResponse<ResponsePlayer>> => {
@@ -28,7 +34,17 @@ export const fetchAllPlayer = async (
   return res.data;
 };
 
-export const fetchPlayerById = async (id: string) : Promise<ApiResponse<Player>> => {
+export const fetchPlayerById = async (
+  id: string
+): Promise<ApiResponse<Player>> => {
   const res = await api.get(`/players/${id}`);
   return res.data;
 };
+
+export const addAComment = async (values: commentPayload) => {
+  const { id, ...commentData } = values;
+
+  const res = await api.post(`/players/${id}/comment`, commentData);
+  return res.data;
+};
+
