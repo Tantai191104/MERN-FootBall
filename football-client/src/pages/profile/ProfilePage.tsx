@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Tabs,
   Form,
@@ -8,25 +8,64 @@ import {
   Avatar,
   Descriptions,
   Typography,
+  Modal,
 } from "antd";
-import { LockOutlined, UserOutlined } from "../../components/Icon/AntdIcons";
+import { LockOutlined, UserOutlined , ExclamationCircleOutlined} from "../../components/Icon/AntdIcons";
 import { useAuthStore } from "../../stores/useAuthStore";
+import {
+  changePassword,
+  type ChangePasswordValues,
+} from "../../services/memberService";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const { TabPane } = Tabs;
 const { Title } = Typography;
-
-type ChangePasswordValues = {
-  currentPassword: string;
-  newPassword: string;
-  confirmPassword: string;
+const { confirm } = Modal;
+type editValues = {
+  name: string | undefined;
+  YOB: number | undefined;
 };
 
 const ProfilePage: React.FC = () => {
   const [form] = Form.useForm();
   const user = useAuthStore((state) => state.user);
-  const handlePasswordChange = (values: ChangePasswordValues) => {
-    console.log("Password change submitted:", values);
-    // TODO: Call API here
+  const [editing, setEditing] = useState<boolean>(false);
+  const [editValues, setEditValues] = useState({
+    name: user?.name,
+    YOB: user?.YOB,
+  });
+  const navigate = useNavigate();
+  const handlePasswordChange = async (values: ChangePasswordValues) => {
+    confirm({
+      title: "Are you sure you want to change your password?",
+      icon: <ExclamationCircleOutlined />,
+      content: "You will be logged out after changing your password.",
+      okText: "Yes, change it",
+      okType: "danger",
+      cancelText: "Cancel",
+      centered: true,
+      onOk: async () => {
+        console.log("Password change submitted:", values);
+
+        const res = await changePassword(values);
+
+        if (res.success) {
+          toast.success("Password updated successfully. Please log in again.");
+
+          localStorage.removeItem("token");
+          useAuthStore.getState().logout();
+
+          setTimeout(() => {
+            navigate("/auth/login");
+          }, 1000);
+        }
+      },
+    });
+  };
+
+  const handleUpdateProfile = (editValues: editValues) => {
+    console.log(editValues);
   };
 
   return (
@@ -118,20 +157,94 @@ const ProfilePage: React.FC = () => {
                   paddingBottom: "4px",
                 }}
               >
-                {user && (
-                  <>
-                    <Descriptions.Item label="Full Name">
-                      {user.name}
-                    </Descriptions.Item>
-                    <Descriptions.Item label="Memmber Name ">
-                      {user.membername}
-                    </Descriptions.Item>
-                    <Descriptions.Item label="Year of birth ">
-                      {user.YOB}
-                    </Descriptions.Item>
-                  </>
-                )}
+                <Descriptions.Item label="Full Name">
+                  {editing ? (
+                    <Input
+                      value={editValues.name}
+                      onChange={(e) =>
+                        setEditValues({ ...editValues, name: e.target.value })
+                      }
+                    />
+                  ) : (
+                    user?.name
+                  )}
+                </Descriptions.Item>
+
+                <Descriptions.Item label="Member Name">
+                  {user?.membername}
+                </Descriptions.Item>
+
+                <Descriptions.Item label="Year of birth">
+                  {editing ? (
+                    <Input
+                      type="number"
+                      min={1900}
+                      max={2025}
+                      value={editValues.YOB}
+                      onChange={(e) =>
+                        setEditValues({
+                          ...editValues,
+                          YOB: parseInt(e.target.value) || undefined,
+                        })
+                      }
+                    />
+                  ) : (
+                    user?.YOB
+                  )}
+                </Descriptions.Item>
               </Descriptions>
+
+              <div className="flex justify-center gap-4 mt-6">
+                {editing ? (
+                  <>
+                    <Button
+                      onClick={() => setEditing(false)}
+                      type="default"
+                      size="middle"
+                      style={{
+                        borderRadius: 8,
+                        padding: "4px 20px",
+                        fontWeight: 500,
+                      }}
+                    >
+                      Cancel
+                    </Button>
+
+                    <Button
+                      onClick={() => {
+                        handleUpdateProfile(editValues);
+                        setEditing(false);
+                      }}
+                      type="primary"
+                      size="middle"
+                      style={{
+                        backgroundColor: "#16a34a", // xanh lá cây
+                        borderColor: "#16a34a",
+                        borderRadius: 8,
+                        padding: "4px 20px",
+                        fontWeight: 500,
+                      }}
+                    >
+                      Save
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    onClick={() => setEditing(true)}
+                    type="primary"
+                    size="middle"
+                    style={{
+                      backgroundColor: "#2563eb", // xanh dương
+                      borderColor: "#2563eb",
+                      borderRadius: 8,
+                      padding: "4px 20px",
+                      fontWeight: 500,
+                    }}
+                  >
+                    Edit
+                  </Button>
+                )}
+              </div>
             </div>
           </TabPane>
 
@@ -184,7 +297,7 @@ const ProfilePage: React.FC = () => {
 
                 <Form.Item
                   label="Confirm New Password"
-                  name="confirmPassword"
+                  name="confirmNewPassword"
                   dependencies={["newPassword"]}
                   rules={[
                     {
@@ -208,6 +321,7 @@ const ProfilePage: React.FC = () => {
 
                 <Form.Item className="text-center mt-8">
                   <Button
+                    htmlType="submit"
                     className="w-full"
                     style={{
                       backgroundColor: "#064e3b",

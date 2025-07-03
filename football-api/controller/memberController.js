@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 exports.changePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword, confirmNewPassword } = req.body;
-    const memberId = req.user?.memberId;
+    const memberId = req.user?.id;  
     if (!memberId) {
       return sendResponse(res, 401, false, null, "Unauthorized");
     }
@@ -18,6 +18,8 @@ exports.changePassword = async (req, res) => {
         "New password must be different from current password"
       );
     }
+    console.log(newPassword)
+    console.log(confirmNewPassword)
 
     if (newPassword !== confirmNewPassword) {
       return sendResponse(

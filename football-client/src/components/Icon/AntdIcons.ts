@@ -7,3 +7,6 @@ export { default as LockOutlined } from "@ant-design/icons/LockOutlined";
 export { default as UserOutlined } from "@ant-design/icons/UserOutlined";
 export { default as GoogleOutlined } from "@ant-design/icons/GoogleOutlined";
 export { default as LogoutOutlined } from "@ant-design/icons/LogoutOutlined";
+export { default as EditOutlined } from "@ant-design/icons/EditOutlined";
+export { default as DeleteOutlined } from "@ant-design/icons/DeleteOutlined";
+export { default as ExclamationCircleOutlined  } from "@ant-design/icons/ExclamationCircleOutlined";

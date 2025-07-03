@@ -1,8 +1,7 @@
 import { Form, Input, Button, Typography, Card, InputNumber } from "antd";
 import { toast } from "react-toastify";
 import { register } from "../../services/authService";
-
-import { UserOutlined, LockOutlined } from "@ant-design/icons";
+import { UserOutlined, LockOutlined } from "../../components/Icon/AntdIcons";
 import type { RegisterPayload } from "../../model/AuthTypes";
 import { useNavigate } from "react-router-dom";
 

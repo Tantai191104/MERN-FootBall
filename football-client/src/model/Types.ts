@@ -17,6 +17,7 @@ export interface Player {
   updatedAt?: string;
 }
 export interface Member {
+  _id: string ;
   membername: string;
   password: string;
   name: string;

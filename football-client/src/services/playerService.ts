@@ -22,7 +22,7 @@ export type ResponsePlayer = {
 };
 
 export type commentPayload = {
-  id : string ;
+  id : string | undefined;
   content: string;
   rating: number;
 };
@@ -43,8 +43,12 @@ export const fetchPlayerById = async (
 
 export const addAComment = async (values: commentPayload) => {
   const { id, ...commentData } = values;
-
+  console.log( id)
   const res = await api.post(`/players/${id}/comment`, commentData);
   return res.data;
 };
 
+export const deleteAComment  = async (playerId : string) :  Promise<ApiResponse<null>> =>{
+  const res = await api.delete(`/players/${playerId}/deleteComment`)
+  return res.data
+}

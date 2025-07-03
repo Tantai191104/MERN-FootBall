@@ -1,23 +1,29 @@
-// import React from "react";
-// import type { Player } from "../model/Types";
-
 import { useEffect, useState } from "react";
 import PlayerDetailInfo from "./PlayerDetailInfo";
-import { message } from "antd";
 import PlayerCommentList from "./PlayerCommentList";
 import CommentModal from "../../components/CommentModal";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import type { Player } from "../../model/Types";
-import { fetchPlayerById } from "../../services/playerService";
+import {
+  addAComment,
+  deleteAComment,
+  fetchPlayerById,
+  type commentPayload,
+} from "../../services/playerService";
+import { toast } from "react-toastify";
+import { useAuthStore } from "../../stores/useAuthStore";
+import { Modal } from "antd";
 
 function PlayerDetail() {
   const { playerId } = useParams<{ playerId: string }>();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [player, setPlayer] = useState<Player | null>(null);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const user = useAuthStore((state) => state.user);
+  const navigation = useNavigate();
 
   useEffect(() => {
     if (!playerId) return;
-
     const getPlayerById = async (playerId: string) => {
       try {
         const res = await fetchPlayerById(playerId);
@@ -30,16 +36,76 @@ function PlayerDetail() {
         console.error("Lỗi khi lấy cầu thủ:", error);
       }
     };
-
     getPlayerById(playerId);
   }, [playerId]);
-  console.log(player);
+
+  const requiredToOpenModal = () => {
+    if (!isAuthenticated) {
+      toast.warning("You have to login before comment");
+      navigation("/auth/login");
+      return;
+    }
+    const currentUserId = user?.id;
+
+    const hasCommented = player?.comments?.some(
+      (comment) => comment.author._id === currentUserId
+    );
+
+    if (hasCommented) {
+      toast.warning("You have already commented on this player.");
+      return;
+    }
+
+    setIsModalOpen(true);
+  };
 
   const handleAddComment = async (content: string, rating: number) => {
     console.log(content);
     console.log(rating);
-    message.success("Added!");
+    try {
+      const commentPayload: commentPayload = {
+        rating: rating,
+        content: content,
+        id: playerId,
+      };
+      console.log(commentPayload);
+      const res = await addAComment(commentPayload);
+      if (res.success) {
+        toast.success("Add a comment successful !");
+      }
+    } catch (error) {
+      console.log(error);
+    }
     setIsModalOpen(false);
+  };
+
+  const handleDeleteComment = () => {
+    if (!playerId) return;
+
+    Modal.confirm({
+      title: "Are you sure?",
+      content:
+        "Do you really want to delete your comment? This action cannot be undone.",
+      okText: "Yes, delete it",
+      okType: "danger",
+      cancelText: "Cancel",
+      onOk: async () => {
+        try {
+          const res = await deleteAComment(playerId);
+          if (res.success) {
+            toast.success(res.message || "Comment deleted successfully");
+            
+            const updated = await fetchPlayerById(playerId);
+            if (updated.success) {
+              setPlayer(updated.data);
+            }
+          }
+        } catch (error) {
+          console.log(error);
+          toast.error("Failed to delete comment");
+        }
+      },
+    });
   };
 
   if (!player) {
@@ -60,17 +126,17 @@ function PlayerDetail() {
           />
         </section>
 
-        <PlayerDetailInfo
-          player={player}
-          isOpenModal={() => setIsModalOpen(true)}
-        />
+        <PlayerDetailInfo player={player} isOpenModal={requiredToOpenModal} />
         <CommentModal
           open={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           onAdd={handleAddComment}
         />
       </div>
-      <PlayerCommentList comments={player.comments} />
+      <PlayerCommentList
+        comments={player.comments}
+        onDelete={handleDeleteComment}
+      />
     </div>
   );
 }

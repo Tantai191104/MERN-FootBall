@@ -1,6 +1,6 @@
 const Player = require("../models/players");
 const { sendResponse } = require("../utils/apiResponse");
-
+const mongoose = require("mongoose");
 exports.getAllPlayers = async (req, res) => {
   try {
     // filter
@@ -43,7 +43,9 @@ exports.getAllPlayers = async (req, res) => {
 exports.getPlayerById = async (req, res) => {
   try {
     const playerId = req.params.playerId;
-    const player = await Player.findById(playerId).populate("team");
+    const player = await Player.findById(playerId)
+      .populate("team")
+      .populate("comments.author", "name _id ");
     if (!player) {
       return sendResponse(res, 404, false, null, "Player not found");
     }
@@ -107,13 +109,9 @@ exports.deletePlayer = async (req, res) => {
 exports.addAComment = async (req, res) => {
   try {
     const { rating, content } = req.body;
-    const playerId = req.params.id;
-    const memberId = req.user?.memberId;
-
-    if (!mongoose.Types.ObjectId.isValid(playerId)) {
-      return sendResponse(res, 400, false, null, "Invalid player ID");
-    }
-
+    const playerId = req.params.playerId;
+    const memberId = req.user?.id;
+    console.log(memberId);
     if (!rating || !content) {
       return sendResponse(
         res,
@@ -123,7 +121,7 @@ exports.addAComment = async (req, res) => {
         "Rating and content are required"
       );
     }
-
+    console.log(playerId);
     const player = await Player.findById(playerId);
 
     if (!player) {
@@ -159,6 +157,7 @@ exports.addAComment = async (req, res) => {
       "Comment added successfully"
     );
   } catch (error) {
+    console.error("Error when posting comment:", error);
     return sendResponse(res, 500, false, null, error.message);
   }
 };
@@ -174,7 +173,13 @@ exports.editAComment = async (req, res) => {
     }
 
     if (!rating || !content) {
-      return sendResponse(res, 400, false, null, "Rating and content are required");
+      return sendResponse(
+        res,
+        400,
+        false,
+        null,
+        "Rating and content are required"
+      );
     }
 
     const player = await Player.findById(playerId);
@@ -196,7 +201,13 @@ exports.editAComment = async (req, res) => {
 
     await player.save();
 
-    return sendResponse(res, 200, true, comment, "Comment updated successfully");
+    return sendResponse(
+      res,
+      200,
+      true,
+      comment,
+      "Comment updated successfully"
+    );
   } catch (error) {
     return sendResponse(res, 500, false, null, error.message);
   }
@@ -205,7 +216,7 @@ exports.editAComment = async (req, res) => {
 exports.deleteAComment = async (req, res) => {
   try {
     const playerId = req.params.playerId;
-    const memberId = req.user?.memberId;
+    const memberId = req.user?.id;
 
     if (!mongoose.Types.ObjectId.isValid(playerId)) {
       return sendResponse(res, 400, false, null, "Invalid player ID");
@@ -215,9 +226,9 @@ exports.deleteAComment = async (req, res) => {
     if (!player) {
       return sendResponse(res, 404, false, null, "Player not found");
     }
-
+    console.log(memberId)
     const existingComment = player.comments.find(
-      (comment) => comment.author.toString() === memberId
+      (comment) => comment.author.toString() === memberId 
     );
 
     if (!existingComment) {

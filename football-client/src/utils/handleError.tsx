@@ -22,7 +22,7 @@ export function handleApiError(error: AxiosError) {
         toast.error(backendMessage || "Session expired. Please log in again.");
         localStorage.removeItem("token");
         setTimeout(() => {
-          window.location.href = "/login";
+          window.location.href = "/auth/login";
         }, 1000);
       }
       break;
