@@ -17,7 +17,7 @@ exports.createATeam = async (req, res) => {
 
 exports.getAllTeams = async (req, res) => {
   try {
-    const teams = Team.find({});
+    const teams = await Team.find({});
     return sendResponse(res, 200, true, teams);
   } catch (error) {
     return sendResponse(res, 500, false, null, error.message);

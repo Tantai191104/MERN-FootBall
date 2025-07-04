@@ -7,6 +7,7 @@ import PlayerDetail from "./pages/player/PlayerDetail";
 import ProfilePage from "./pages/profile/ProfilePage";
 import { ToastContainer } from "react-toastify";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import TeamManage from "./admin/TeamManage";
 const BaseLayout = lazy(() => import("./layouts/BaseLayout"));
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           />
           <Route path="/auth/login" element={<LoginPage />} />
           <Route path="/auth/signUp" element={<SignUpPage />} />
+          <Route path="/admin/teamManage" element={<TeamManage />} />
         </Route>
       </Routes>
       <ToastContainer position="top-right" autoClose={3000} />

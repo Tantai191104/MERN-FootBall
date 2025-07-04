@@ -51,7 +51,7 @@ function Header() {
                 Players
               </Link>
               <Link
-                to="/admin"
+                to="/admin/teamManage"
                 className="font-semibold text-[#003459] hover:text-[#003459]/80"
               >
                 Teams

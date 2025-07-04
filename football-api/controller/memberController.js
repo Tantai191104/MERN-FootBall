@@ -64,7 +64,7 @@ exports.updateProfile = async (req, res) => {
       return sendResponse(res, 400, false, null, "Name and YOB are required");
     }
 
-    const memberId = req.user?.memberId;
+    const memberId = req.user?.id;
     if (!memberId) {
       return sendResponse(
         res,
@@ -84,7 +84,7 @@ exports.updateProfile = async (req, res) => {
     if (!updatedMember) {
       return sendResponse(res, 404, false, null, "Member not found");
     }
-
+    console.log(updatedMember)
     return sendResponse(
       res,
       200,

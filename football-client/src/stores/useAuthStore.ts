@@ -1,5 +1,5 @@
 import { create } from "zustand";
-type User = {
+export type User = {
   id: string;
   membername: string;
   YOB: number;
@@ -12,6 +12,7 @@ type AuthState = {
   isAuthenticated: boolean;
   setAuth: (user: User, token: string) => void;
   logout: () => void;
+  setUser: (updateUser: User) => void;
 };
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -27,6 +28,10 @@ export const useAuthStore = create<AuthState>((set) => ({
       token,
       isAuthenticated: true,
     });
+  },
+  // update user
+  setUser: (updateUser) => {
+    set({ user: updateUser });
   },
 
   // Logout

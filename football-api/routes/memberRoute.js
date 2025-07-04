@@ -10,6 +10,6 @@ memberRouter.post(
 memberRouter.post(
   "/changeProfile",
   authMiddleware,
-  memberController.changePassword
+  memberController.updateProfile
 );
 module.exports = memberRouter;

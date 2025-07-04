@@ -4,7 +4,12 @@ const teamController = require("../controller/teamController");
 const authorizeAdmin = require("../middleware/authorizeAdmin");
 const authMiddleware = require("../middleware/authMiddleware");
 teamRouter.get("/", teamController.getAllTeams);
-teamRouter.post("/", teamController.createATeam);
+teamRouter.post(
+  "/",
+  authMiddleware,
+  authorizeAdmin,
+  teamController.createATeam
+);
 teamRouter.put(
   "/:teamId",
   authMiddleware,

@@ -10,11 +10,17 @@ import {
   Typography,
   Modal,
 } from "antd";
-import { LockOutlined, UserOutlined , ExclamationCircleOutlined} from "../../components/Icon/AntdIcons";
+import {
+  LockOutlined,
+  UserOutlined,
+  ExclamationCircleOutlined,
+} from "../../components/Icon/AntdIcons";
 import { useAuthStore } from "../../stores/useAuthStore";
 import {
   changePassword,
+  changeProfile,
   type ChangePasswordValues,
+  type editValues,
 } from "../../services/memberService";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -22,37 +28,34 @@ import { toast } from "react-toastify";
 const { TabPane } = Tabs;
 const { Title } = Typography;
 const { confirm } = Modal;
-type editValues = {
-  name: string | undefined;
-  YOB: number | undefined;
-};
 
 const ProfilePage: React.FC = () => {
   const [form] = Form.useForm();
   const user = useAuthStore((state) => state.user);
+  const setUser = useAuthStore((state) => state.setUser);
   const [editing, setEditing] = useState<boolean>(false);
   const [editValues, setEditValues] = useState({
     name: user?.name,
     YOB: user?.YOB,
   });
   const navigate = useNavigate();
-  const handlePasswordChange = async (values: ChangePasswordValues) => {
-    confirm({
-      title: "Are you sure you want to change your password?",
-      icon: <ExclamationCircleOutlined />,
-      content: "You will be logged out after changing your password.",
-      okText: "Yes, change it",
-      okType: "danger",
-      cancelText: "Cancel",
-      centered: true,
-      onOk: async () => {
+const handlePasswordChange = async (values: ChangePasswordValues) => {
+  confirm({
+    title: "Are you sure you want to change your password?",
+    icon: <ExclamationCircleOutlined />,
+    content: "You will be logged out after changing your password.",
+    okText: "Yes, change it",
+    okType: "danger",
+    cancelText: "Cancel",
+    centered: true,
+    onOk: async () => {
+      try {
         console.log("Password change submitted:", values);
 
         const res = await changePassword(values);
 
         if (res.success) {
           toast.success("Password updated successfully. Please log in again.");
-
           localStorage.removeItem("token");
           useAuthStore.getState().logout();
 
@@ -60,14 +63,45 @@ const ProfilePage: React.FC = () => {
             navigate("/auth/login");
           }, 1000);
         }
+      } catch (error) {
+        console.error(error);
+      }
+      return;
+    },
+  });
+};
+
+
+  const handleUpdateProfile = async (editValues: editValues) => {
+    confirm({
+      title: "Are you sure you want to change your password?",
+      icon: <ExclamationCircleOutlined />,
+      content:
+        "This will update your profile details. Do you want to continue?",
+      okText: "Yes, change it",
+      okType: "danger",
+      cancelText: "Cancel",
+      centered: true,
+      onOk: async () => {
+        const res = await changeProfile(editValues);
+        if (res.success) {
+          setUser(res.data);
+          toast.success(res.message);
+        }
+      },
+      onCancel: () => {
+        setEditValues({ name: user?.name, YOB: user?.YOB });
       },
     });
   };
 
-  const handleUpdateProfile = (editValues: editValues) => {
-    console.log(editValues);
+  const handleCancelButton = async () => {
+    setEditValues({
+      name: user?.name,
+      YOB: user?.YOB,
+    });
+    setEditing(false);
   };
-
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-white">
       <Card
@@ -198,7 +232,7 @@ const ProfilePage: React.FC = () => {
                 {editing ? (
                   <>
                     <Button
-                      onClick={() => setEditing(false)}
+                      onClick={handleCancelButton}
                       type="default"
                       size="middle"
                       style={{
