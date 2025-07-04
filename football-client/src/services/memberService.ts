@@ -1,6 +1,7 @@
 import api from "../apiClient";
 import type { ApiResponse } from "../model/ApiResponse";
-import type {User} from "../stores/useAuthStore"
+import type { Member } from "../model/Types";
+import type { User } from "../stores/useAuthStore";
 export type ChangePasswordValues = {
   currentPassword: string;
   newPassword: string;
@@ -24,3 +25,9 @@ export const changeProfile = async (
   const res = await api.post("/member/changeProfile", values);
   return res.data;
 };
+
+export const getAllMembers = async (): Promise<ApiResponse<Member[]>> => {
+  const res = await api.get("/member");
+  return res.data;
+};
+

@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 exports.changePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword, confirmNewPassword } = req.body;
-    const memberId = req.user?.id;  
+    const memberId = req.user?.id;
     if (!memberId) {
       return sendResponse(res, 401, false, null, "Unauthorized");
     }
@@ -18,8 +18,8 @@ exports.changePassword = async (req, res) => {
         "New password must be different from current password"
       );
     }
-    console.log(newPassword)
-    console.log(confirmNewPassword)
+    console.log(newPassword);
+    console.log(confirmNewPassword);
 
     if (newPassword !== confirmNewPassword) {
       return sendResponse(
@@ -84,7 +84,7 @@ exports.updateProfile = async (req, res) => {
     if (!updatedMember) {
       return sendResponse(res, 404, false, null, "Member not found");
     }
-    console.log(updatedMember)
+    console.log(updatedMember);
     return sendResponse(
       res,
       200,
@@ -92,6 +92,16 @@ exports.updateProfile = async (req, res) => {
       updatedMember,
       "Profile updated successfully"
     );
+  } catch (error) {
+    return sendResponse(res, 500, false, null, error.message);
+  }
+};
+
+exports.getAllMembers = async (req, res) => {
+  try {
+    const currentUserId = req.user.id; 
+    const members = await Member.find({ _id: { $ne: currentUserId } }).sort({ createdAt: -1 });
+    return sendResponse(res, 200, true, members, null);
   } catch (error) {
     return sendResponse(res, 500, false, null, error.message);
   }

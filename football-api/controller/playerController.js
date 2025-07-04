@@ -5,9 +5,12 @@ exports.getAllPlayers = async (req, res) => {
   try {
     // filter
     const { playerName, team, pageInfo } = req.body;
+    console.log(playerName);
+    console.log(team);
+    console.log(pageInfo);
     const filter = {};
     if (playerName) {
-      filter.playerName = { $regex: playerName, $option: "i" };
+      filter.playerName = { $regex: playerName, $options: "i" };
     }
     if (team) {
       filter.team = team;
@@ -24,7 +27,8 @@ exports.getAllPlayers = async (req, res) => {
     const players = await Player.find(filter)
       .skip(skip)
       .limit(pageSize)
-      .populate("team");
+      .populate("team")
+      .sort({ createdAt: -1 });
 
     // Send response
     return sendResponse(res, 200, true, {
@@ -55,35 +59,102 @@ exports.getPlayerById = async (req, res) => {
   }
 };
 
+exports.addAPlayer = async (req, res) => {
+  try {
+    const { playerName, image, cost, isCaptain, information, team } = req.body;
+
+    // Validate cơ bản
+    if (!playerName || !image || !cost || !information || !team) {
+      return sendResponse(res, 400, false, null, "Missing required fields");
+    }
+
+    // Nếu đang tạo captain thì check xem team đó đã có captain chưa
+    if (isCaptain) {
+      const existingCaptain = await Player.findOne({
+        team,
+        isCaptain: true,
+      }).populate("team");
+
+      if (existingCaptain) {
+        return sendResponse(
+          res,
+          400,
+          false,
+          null,
+          `${
+            existingCaptain.team?.teamName || "This team"
+          } already has a captain`
+        );
+      }
+    }
+
+    // Tạo cầu thủ mới
+    const newPlayer = await Player.create({
+      playerName,
+      image,
+      cost,
+      isCaptain,
+      information,
+      team,
+      comments: [],
+    });
+
+    return sendResponse(
+      res,
+      201,
+      true,
+      newPlayer,
+      "Player created successfully"
+    );
+  } catch (error) {
+    return sendResponse(res, 500, false, null, error.message);
+  }
+};
+
 exports.editPlayer = async (req, res) => {
   try {
     const { playerName, image, cost, isCaptain, information, team } = req.body;
-    const playerId = req.params.playerId;
+    const { playerId } = req.params;
+
+    // 1. Kiểm tra player tồn tại
     const player = await Player.findById(playerId);
-    // check exis captain
-    const existingCaptain = await Player.findOne({
-      team: team,
-      isCaptain: true,
-      _id: { $ne: playerId },
-    });
-    if (existingCaptain) {
-      return sendResponse(res, 400, false, null, `${team} already has captain`);
-    }
-
-    // Update  data
-    player.playerName = playerName;
-    player.image = image;
-    player.cost = cost;
-    player.isCaptain = isCaptain;
-    player.information = information;
-    player.team = team;
-
-    const updatedPlayer = await player.save();
-    if (player) {
-      return sendResponse(res, 200, true, player);
-    } else {
+    if (!player) {
       return sendResponse(res, 404, false, null, "Player not found");
     }
+
+    // 2. Kiểm tra đã có captain chưa (nếu đang chọn isCaptain)
+    if (isCaptain) {
+      const existingCaptain = await Player.findOne({
+        team,
+        isCaptain: true,
+        _id: { $ne: playerId }, // loại trừ chính nó
+      }).populate("team");
+
+      if (existingCaptain) {
+        return sendResponse(
+          res,
+          400,
+          false,
+          null,
+          `${
+            existingCaptain.team?.teamName || "This team"
+          } already has a captain`
+        );
+      }
+    }
+
+    // 3. Cập nhật thông tin
+    player.set({ playerName, image, cost, isCaptain, information, team });
+
+    const updatedPlayer = await player.save();
+
+    return sendResponse(
+      res,
+      200,
+      true,
+      updatedPlayer,
+      "Player updated successfully"
+    );
   } catch (error) {
     return sendResponse(res, 500, false, null, error.message);
   }
@@ -166,7 +237,7 @@ exports.editAComment = async (req, res) => {
   try {
     const { rating, content } = req.body;
     const playerId = req.params.playerId;
-    const memberId = req.user?.memberId;
+    const memberId = req.user?.id;
 
     if (!mongoose.Types.ObjectId.isValid(playerId)) {
       return sendResponse(res, 400, false, null, "Invalid player ID");
@@ -226,9 +297,9 @@ exports.deleteAComment = async (req, res) => {
     if (!player) {
       return sendResponse(res, 404, false, null, "Player not found");
     }
-    console.log(memberId)
+    console.log(memberId);
     const existingComment = player.comments.find(
-      (comment) => comment.author.toString() === memberId 
+      (comment) => comment.author.toString() === memberId
     );
 
     if (!existingComment) {

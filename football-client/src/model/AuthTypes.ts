@@ -9,15 +9,19 @@ export type LoginResponse = {
     id: string;
     membername: string;
     isAdmin: boolean;
-    YOB : number ; 
-    name : string ;
+    YOB: number;
+    name: string;
   };
 };
 
 export type RegisterPayload = {
   membername: string;
   password: string;
-  confirmPassword : string;
+  confirmPassword: string;
   name: string;
   YOB: number;
+};
+
+export type GoogleLoginPayload = {
+  token: string;
 };

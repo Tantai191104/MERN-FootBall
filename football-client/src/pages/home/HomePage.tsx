@@ -5,75 +5,91 @@ import type { Player, Team } from "../../model/Types";
 import { Pagination, Select } from "antd";
 import Search from "antd/es/input/Search";
 import { fetchAllPlayer, type Query } from "../../services/playerService";
-const teams: Team[] = [
-  {
-    _id: "t1",
-    teamName: "Inter Miami",
-    createdAt: "2023-05-01T10:00:00Z",
-    updatedAt: "2023-08-01T12:00:00Z",
-  },
-  {
-    _id: "t2",
-    teamName: "Manchester City",
-    createdAt: "2022-01-10T09:00:00Z",
-    updatedAt: "2023-09-12T14:30:00Z",
-  },
-  {
-    _id: "t3",
-    teamName: "Paris Saint-Germain",
-    createdAt: "2021-06-20T15:00:00Z",
-    updatedAt: "2024-03-22T17:00:00Z",
-  },
-  {
-    _id: "t4",
-    teamName: "Real Madrid",
-    createdAt: "2020-11-05T08:45:00Z",
-    updatedAt: "2024-01-18T13:20:00Z",
-  },
-  {
-    _id: "t5",
-    teamName: "FC Barcelona",
-    createdAt: "2020-02-10T12:00:00Z",
-    updatedAt: "2024-06-01T10:00:00Z",
-  },
-  {
-    _id: "t6",
-    teamName: "Arsenal",
-    createdAt: "2022-06-01T14:10:00Z",
-    updatedAt: "2024-03-12T16:30:00Z",
-  },
-];
+import { getAllTeam } from "../../services/teamService";
 
 function HomePage() {
-  const [players, setPlayers] = useState<Player[]>();
+  const [players, setPlayers] = useState<Player[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [total, setTotal] = useState(0);
+  const [searchText, setSearchText] = useState("");
+
   const [query, setQuery] = useState<Query>({
     playerName: null,
     team: null,
     pageInfo: {
-      pagg: 1,
+      page: 1,
       pageSize: 8,
-      totalPage: null,
     },
   });
+
+  const handleSelectTeam = (value: string | null) => {
+    setQuery((prev) => ({
+      ...prev,
+      team: value || null,
+      pageInfo: {
+        ...prev.pageInfo,
+        page: 1,
+        pageSize: prev.pageInfo?.pageSize ?? 8,
+      },
+    }));
+  };
+
+  const getAllTeams = async () => {
+    try {
+      const res = await getAllTeam();
+      if (res.success) {
+        setTeams(res.data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const getAllPlayer = async () => {
     try {
       const res = await fetchAllPlayer(query);
       if (res.success) {
         setPlayers(res.data.players);
+        if (res.data.pageInfo?.totalPage && res.data.pageInfo?.pageSize) {
+          setTotal(res.data.pageInfo.totalPage * res.data.pageInfo.pageSize);
+        } else {
+          setTotal(0);
+        }
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
+  // Debounce searchText -> update query
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setQuery((prev) => ({
+        ...prev,
+        playerName: searchText || null,
+        pageInfo: {
+          ...prev.pageInfo,
+          page: 1,
+          pageSize: prev.pageInfo?.pageSize ?? 8,
+        },
+      }));
+    }, 500); // debounce 500ms
+
+    return () => clearTimeout(timeout);
+  }, [searchText]);
+
+  useEffect(() => {
+    getAllTeams();
+  }, []);
+
   useEffect(() => {
     getAllPlayer();
-  }, []);
-  console.log(players);
+  }, [query]);
+
   return (
     <div>
       <Banner />
+
       {/* Section header */}
       <section className="max-w-6xl mx-auto mt-20 mb-12 px-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
@@ -84,6 +100,8 @@ function HomePage() {
             </h2>
           </div>
         </div>
+
+        {/* Search and Filter */}
         <div className="flex flex-col sm:flex-row gap-4 mt-4 justify-between">
           <Search
             placeholder="Search by player name"
@@ -91,6 +109,8 @@ function HomePage() {
             enterButton
             className="!rounded-xl max-w-sm w-full"
             size="large"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
             style={{ borderRadius: 32 }}
           />
 
@@ -100,9 +120,11 @@ function HomePage() {
             className="max-w-sm w-[150px]"
             size="large"
             style={{ borderRadius: 50 }}
+            value={query.team || undefined}
+            onChange={handleSelectTeam}
           >
             {teams.map((team) => (
-              <Select.Option key={team._id} value={team.teamName}>
+              <Select.Option key={team._id} value={team._id}>
                 {team.teamName}
               </Select.Option>
             ))}
@@ -110,20 +132,33 @@ function HomePage() {
         </div>
       </section>
 
-      {Array.isArray(players) && players.length > 0 ? (
+      {/* Player Cards */}
+      {players.length > 0 ? (
         <section id="players-section">
           <PlayerCard players={players} />
         </section>
       ) : (
-        <p>No player remaining</p>
+        <p className="text-center text-gray-500 italic">No player remaining</p>
       )}
 
-      <Pagination
-        style={{ marginTop: 4 }}
-        align="center"
-        defaultCurrent={1}
-        total={50}
-      />
+      {/* Pagination */}
+      <div className="flex justify-center mt-8">
+        <Pagination
+          current={query.pageInfo?.page}
+          pageSize={query.pageInfo?.pageSize}
+          total={total}
+          showSizeChanger={false}
+          onChange={(page) => {
+            setQuery((prev) => ({
+              ...prev,
+              pageInfo: {
+                page,
+                pageSize: prev.pageInfo?.pageSize ?? 8,
+              },
+            }));
+          }}
+        />
+      </div>
     </div>
   );
 }

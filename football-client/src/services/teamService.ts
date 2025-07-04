@@ -13,3 +13,8 @@ export const addATeam = async (
   const res = await api.post(`/teams`, {teamName});
   return res.data;
 };
+
+export const deleteATeam = async (teamId : string) : Promise<ApiResponse<null>> =>{
+  const res = await api.delete(`/teams/${teamId}`)
+  return res.data
+}

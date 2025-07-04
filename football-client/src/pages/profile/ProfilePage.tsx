@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import {
-  Tabs,
   Form,
   Input,
   Button,
@@ -9,6 +8,8 @@ import {
   Descriptions,
   Typography,
   Modal,
+  type TabsProps,
+  Tabs,
 } from "antd";
 import {
   LockOutlined,
@@ -25,7 +26,6 @@ import {
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
-const { TabPane } = Tabs;
 const { Title } = Typography;
 const { confirm } = Modal;
 
@@ -39,46 +39,43 @@ const ProfilePage: React.FC = () => {
     YOB: user?.YOB,
   });
   const navigate = useNavigate();
-const handlePasswordChange = async (values: ChangePasswordValues) => {
-  confirm({
-    title: "Are you sure you want to change your password?",
-    icon: <ExclamationCircleOutlined />,
-    content: "You will be logged out after changing your password.",
-    okText: "Yes, change it",
-    okType: "danger",
-    cancelText: "Cancel",
-    centered: true,
-    onOk: async () => {
-      try {
-        console.log("Password change submitted:", values);
 
-        const res = await changePassword(values);
-
-        if (res.success) {
-          toast.success("Password updated successfully. Please log in again.");
-          localStorage.removeItem("token");
-          useAuthStore.getState().logout();
-
-          setTimeout(() => {
-            navigate("/auth/login");
-          }, 1000);
-        }
-      } catch (error) {
-        console.error(error);
-      }
-      return;
-    },
-  });
-};
-
-
-  const handleUpdateProfile = async (editValues: editValues) => {
+  const handlePasswordChange = async (values: ChangePasswordValues) => {
     confirm({
       title: "Are you sure you want to change your password?",
       icon: <ExclamationCircleOutlined />,
+      content: "You will be logged out after changing your password.",
+      okText: "Yes, change it",
+      okType: "danger",
+      cancelText: "Cancel",
+      centered: true,
+      onOk: async () => {
+        try {
+          const res = await changePassword(values);
+          if (res.success) {
+            toast.success(
+              "Password updated successfully. Please log in again."
+            );
+            localStorage.removeItem("token");
+            useAuthStore.getState().logout();
+            setTimeout(() => {
+              navigate("/auth/login");
+            }, 1000);
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      },
+    });
+  };
+
+  const handleUpdateProfile = async (editValues: editValues) => {
+    confirm({
+      title: "Are you sure you want to update your profile?",
+      icon: <ExclamationCircleOutlined />,
       content:
         "This will update your profile details. Do you want to continue?",
-      okText: "Yes, change it",
+      okText: "Yes, update",
       okType: "danger",
       cancelText: "Cancel",
       centered: true,
@@ -95,18 +92,220 @@ const handlePasswordChange = async (values: ChangePasswordValues) => {
     });
   };
 
-  const handleCancelButton = async () => {
-    setEditValues({
-      name: user?.name,
-      YOB: user?.YOB,
-    });
+  const handleCancelButton = () => {
+    setEditValues({ name: user?.name, YOB: user?.YOB });
     setEditing(false);
   };
+  const tabItems: TabsProps["items"] = [
+    {
+      key: "1",
+      label: (
+        <span style={{ color: "#ffffff", fontWeight: 600 }}>
+          <UserOutlined style={{ marginRight: 8 }} />
+          Member Information
+        </span>
+      ),
+      children: (
+        <div className="flex flex-col items-center gap-6 mt-8 mb-4">
+          <Avatar
+            size={100}
+            icon={<UserOutlined />}
+            style={{
+              backgroundColor: "#064e3b",
+              border: "3px solid white",
+              boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+            }}
+          />
+          <Descriptions
+            column={1}
+            className="w-full max-w-xl"
+            layout="vertical"
+            styles={{
+              content: {
+                backgroundColor: "#ffffff",
+                borderRadius: "8px",
+                padding: "16px",
+                fontSize: "16px",
+                color: "#022c22",
+                boxShadow: "inset 0 1px 2px rgba(0,0,0,0.03)",
+              },
+              label: {
+                fontWeight: "bold",
+                fontSize: "14px",
+                color: "#065f46",
+                paddingBottom: "4px",
+              },
+            }}
+          >
+            <Descriptions.Item label="Full Name">
+              {editing ? (
+                <Input
+                  value={editValues.name}
+                  onChange={(e) =>
+                    setEditValues({ ...editValues, name: e.target.value })
+                  }
+                />
+              ) : (
+                user?.name
+              )}
+            </Descriptions.Item>
+
+            <Descriptions.Item label="Member Name">
+              {user?.membername}
+            </Descriptions.Item>
+
+            <Descriptions.Item label="Year of birth">
+              {editing ? (
+                <Input
+                  type="number"
+                  min={1900}
+                  max={2025}
+                  value={editValues.YOB}
+                  onChange={(e) =>
+                    setEditValues({
+                      ...editValues,
+                      YOB: parseInt(e.target.value) || undefined,
+                    })
+                  }
+                />
+              ) : (
+                user?.YOB
+              )}
+            </Descriptions.Item>
+          </Descriptions>
+
+          <div className="flex justify-center gap-4 mt-6">
+            {editing ? (
+              <>
+                <Button onClick={handleCancelButton}>Cancel</Button>
+                <Button
+                  type="primary"
+                  style={{
+                    backgroundColor: "#16a34a",
+                    borderColor: "#16a34a",
+                  }}
+                  onClick={() => {
+                    handleUpdateProfile(editValues);
+                    setEditing(false);
+                  }}
+                >
+                  Save
+                </Button>
+              </>
+            ) : (
+              <Button
+                type="primary"
+                style={{
+                  backgroundColor: "#2563eb",
+                  borderColor: "#2563eb",
+                }}
+                onClick={() => setEditing(true)}
+              >
+                Edit
+              </Button>
+            )}
+          </div>
+        </div>
+      ),
+    },
+  ];
+
+  // 👇 Nếu không phải tài khoản Google thì mới cho đổi mật khẩu
+  if (!user?.isGoogleAccount) {
+    tabItems.push({
+      key: "2",
+      label: (
+        <span style={{ color: "#ffffff", fontWeight: 600 }}>
+          <LockOutlined style={{ marginRight: 8 }} />
+          Change Password
+        </span>
+      ),
+      children: (
+        <div className="flex justify-center mt-8 mb-4">
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handlePasswordChange}
+            className="w-full max-w-xl"
+          >
+            <Form.Item
+              label="Current Password"
+              name="currentPassword"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter your current password",
+                },
+              ]}
+            >
+              <Input.Password placeholder="Enter current password" />
+            </Form.Item>
+
+            <Form.Item
+              label="New Password"
+              name="newPassword"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter a new password",
+                },
+                {
+                  min: 6,
+                  message: "Password must be at least 6 characters",
+                },
+              ]}
+            >
+              <Input.Password placeholder="Enter new password" />
+            </Form.Item>
+
+            <Form.Item
+              label="Confirm New Password"
+              name="confirmNewPassword"
+              dependencies={["newPassword"]}
+              rules={[
+                {
+                  required: true,
+                  message: "Please confirm your new password",
+                },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || getFieldValue("newPassword") === value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error("Passwords do not match"));
+                  },
+                }),
+              ]}
+            >
+              <Input.Password placeholder="Confirm new password" />
+            </Form.Item>
+
+            <Form.Item className="text-center mt-8">
+              <Button
+                htmlType="submit"
+                className="w-full"
+                style={{
+                  backgroundColor: "#064e3b",
+                  borderColor: "#064e3b",
+                  color: "#fff",
+                  fontSize: "16px",
+                  padding: "16px",
+                  borderRadius: "8px",
+                }}
+              >
+                Update Password
+              </Button>
+            </Form.Item>
+          </Form>
+        </div>
+      ),
+    });
+  }
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-white">
       <Card
         className="w-full max-w-4xl"
-        bordered={false}
+        variant="borderless"
         style={{
           background:
             "linear-gradient(to right, rgba(192, 235, 106, 0.7), #485550)",
@@ -144,242 +343,14 @@ const handlePasswordChange = async (values: ChangePasswordValues) => {
             </Title>
           </div>
         </div>
-
         <Tabs
           defaultActiveKey="1"
           centered
           tabBarGutter={80}
           animated={{ inkBar: true, tabPane: true }}
           tabBarStyle={{ fontWeight: 600, fontSize: 16 }}
-        >
-          {/* Tab 1: Member Info */}
-          <TabPane
-            tab={
-              <span style={{ color: "#ffffff", fontWeight: 600 }}>
-                <UserOutlined style={{ marginRight: 8 }} />
-                Member Information
-              </span>
-            }
-            key="1"
-          >
-            <div className="flex flex-col items-center gap-6 mt-8 mb-4">
-              <Avatar
-                size={100}
-                icon={<UserOutlined />}
-                style={{
-                  backgroundColor: "#064e3b",
-                  border: "3px solid white",
-                  boxShadow: "0 0 10px rgba(0,0,0,0.1)",
-                }}
-              />
-              <Descriptions
-                column={1}
-                className="w-full max-w-xl"
-                layout="vertical"
-                contentStyle={{
-                  backgroundColor: "#ffffff",
-                  borderRadius: "8px",
-                  padding: "16px",
-                  fontSize: "16px",
-                  color: "#022c22",
-                  boxShadow: "inset 0 1px 2px rgba(0,0,0,0.03)",
-                }}
-                labelStyle={{
-                  fontWeight: "bold",
-                  fontSize: "14px",
-                  color: "#065f46",
-                  paddingBottom: "4px",
-                }}
-              >
-                <Descriptions.Item label="Full Name">
-                  {editing ? (
-                    <Input
-                      value={editValues.name}
-                      onChange={(e) =>
-                        setEditValues({ ...editValues, name: e.target.value })
-                      }
-                    />
-                  ) : (
-                    user?.name
-                  )}
-                </Descriptions.Item>
-
-                <Descriptions.Item label="Member Name">
-                  {user?.membername}
-                </Descriptions.Item>
-
-                <Descriptions.Item label="Year of birth">
-                  {editing ? (
-                    <Input
-                      type="number"
-                      min={1900}
-                      max={2025}
-                      value={editValues.YOB}
-                      onChange={(e) =>
-                        setEditValues({
-                          ...editValues,
-                          YOB: parseInt(e.target.value) || undefined,
-                        })
-                      }
-                    />
-                  ) : (
-                    user?.YOB
-                  )}
-                </Descriptions.Item>
-              </Descriptions>
-
-              <div className="flex justify-center gap-4 mt-6">
-                {editing ? (
-                  <>
-                    <Button
-                      onClick={handleCancelButton}
-                      type="default"
-                      size="middle"
-                      style={{
-                        borderRadius: 8,
-                        padding: "4px 20px",
-                        fontWeight: 500,
-                      }}
-                    >
-                      Cancel
-                    </Button>
-
-                    <Button
-                      onClick={() => {
-                        handleUpdateProfile(editValues);
-                        setEditing(false);
-                      }}
-                      type="primary"
-                      size="middle"
-                      style={{
-                        backgroundColor: "#16a34a", // xanh lá cây
-                        borderColor: "#16a34a",
-                        borderRadius: 8,
-                        padding: "4px 20px",
-                        fontWeight: 500,
-                      }}
-                    >
-                      Save
-                    </Button>
-                  </>
-                ) : (
-                  <Button
-                    onClick={() => setEditing(true)}
-                    type="primary"
-                    size="middle"
-                    style={{
-                      backgroundColor: "#2563eb", // xanh dương
-                      borderColor: "#2563eb",
-                      borderRadius: 8,
-                      padding: "4px 20px",
-                      fontWeight: 500,
-                    }}
-                  >
-                    Edit
-                  </Button>
-                )}
-              </div>
-            </div>
-          </TabPane>
-
-          {/* Tab 2: Change Password */}
-          <TabPane
-            tab={
-              <span style={{ color: "#ffffff", fontWeight: 600 }}>
-                <LockOutlined style={{ marginRight: 8 }} />
-                Change Password
-              </span>
-            }
-            key="2"
-          >
-            <div className="flex justify-center mt-8 mb-4">
-              <Form
-                form={form}
-                layout="vertical"
-                onFinish={handlePasswordChange}
-                className="w-full max-w-xl"
-              >
-                <Form.Item
-                  label="Current Password"
-                  name="currentPassword"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please enter your current password",
-                    },
-                  ]}
-                >
-                  <Input.Password placeholder="Enter current password" />
-                </Form.Item>
-
-                <Form.Item
-                  label="New Password"
-                  name="newPassword"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please enter a new password",
-                    },
-                    {
-                      min: 6,
-                      message: "Password must be at least 6 characters",
-                    },
-                  ]}
-                >
-                  <Input.Password placeholder="Enter new password" />
-                </Form.Item>
-
-                <Form.Item
-                  label="Confirm New Password"
-                  name="confirmNewPassword"
-                  dependencies={["newPassword"]}
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please confirm your new password",
-                    },
-                    ({ getFieldValue }) => ({
-                      validator(_, value) {
-                        if (!value || getFieldValue("newPassword") === value) {
-                          return Promise.resolve();
-                        }
-                        return Promise.reject(
-                          new Error("Passwords do not match")
-                        );
-                      },
-                    }),
-                  ]}
-                >
-                  <Input.Password placeholder="Confirm new password" />
-                </Form.Item>
-
-                <Form.Item className="text-center mt-8">
-                  <Button
-                    htmlType="submit"
-                    className="w-full"
-                    style={{
-                      backgroundColor: "#064e3b",
-                      borderColor: "#064e3b",
-                      color: "#fff",
-                      fontSize: "16px",
-                      padding: "16px",
-                      borderRadius: "8px",
-                      transition: "all 0.3s ease-in-out",
-                    }}
-                    onMouseOver={(e) =>
-                      (e.currentTarget.style.backgroundColor = "#022c22")
-                    }
-                    onMouseOut={(e) =>
-                      (e.currentTarget.style.backgroundColor = "#064e3b")
-                    }
-                  >
-                    Update Password
-                  </Button>
-                </Form.Item>
-              </Form>
-            </div>
-          </TabPane>
-        </Tabs>
+          items={tabItems}
+        />
       </Card>
     </div>
   );

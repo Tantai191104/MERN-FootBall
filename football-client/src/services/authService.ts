@@ -4,6 +4,7 @@ import type {
   LoginPayload,
   LoginResponse,
   RegisterPayload,
+  GoogleLoginPayload,
 } from "../model/AuthTypes";
 
 export const login = async (
@@ -20,3 +21,9 @@ export const register = async (
   return res.data;
 };
 
+export const loginGoogle = async (
+  data: GoogleLoginPayload
+): Promise<ApiResponse<LoginResponse>> => {
+  const res = await api.post("/auth/google", data);
+  return res.data;
+};

@@ -5,6 +5,7 @@ export type User = {
   YOB: number;
   name: string;
   isAdmin: boolean;
+  isGoogleAccount?: boolean;
 };
 type AuthState = {
   token: string | null;

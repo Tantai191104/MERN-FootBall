@@ -1,10 +1,11 @@
 import { toast } from "react-toastify";
 import { LockOutlined, UserOutlined } from "../../components/Icon/AntdIcons";
-import { FcGoogle } from "../../components/Icon/ReactIcons";
 import { Form, Input, Button, Typography, Card } from "antd";
-import { login } from "../../services/authService";
+import { login, loginGoogle } from "../../services/authService";
 import { useAuthStore } from "../../stores/useAuthStore";
 import { useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
+import type { CredentialResponse } from "@react-oauth/google";
 
 const { Title, Text } = Typography;
 
@@ -22,11 +23,32 @@ export default function LoginPage() {
 
     if (res.success) {
       setAuth(res.data.member, res.data.token);
-      console.log(res.data.member)
       toast.success("Login successful!");
       navigation("/");
     } else {
       toast.error(res.message || "Login failed.");
+    }
+  };
+
+  const handleGoogleSuccess = async (
+    credentialResponse: CredentialResponse
+  ) => {
+    if (!credentialResponse.credential) {
+      toast.error("Google credential missing");
+      return;
+    }
+    try {
+      const res = await loginGoogle({ token: credentialResponse.credential });
+      if (res.success) {
+       setAuth({ ...res.data.member, isGoogleAccount: true }, res.data.token);
+        toast.success("Login with Google successful!");
+        navigation("/");
+      } else {
+        toast.error(res.message || "Google login failed");
+      }
+    } catch (err) {
+      console.error("Google Login Error:", err);
+      toast.error("Unexpected error during Google login");
     }
   };
 
@@ -92,20 +114,12 @@ export default function LoginPage() {
             </Form.Item>
           </Form>
 
-          <Button
-            icon={<FcGoogle size={20} />}
-            htmlType="button"
-            size="large"
-            className="w-full"
-            style={{
-              backgroundColor: "#fff",
-              color: "#485550",
-              fontWeight: 600,
-              borderRadius: "8px",
-            }}
-          >
-            Sign Up with Google
-          </Button>
+          <div className="mt-2 flex justify-center">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => toast.error("Google login failed")}
+            />
+          </div>
 
           <div className="text-center mt-8">
             <Text type="secondary">Don’t have an account?</Text>

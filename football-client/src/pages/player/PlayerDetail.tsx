@@ -1,112 +1,132 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { Modal } from "antd";
+import { toast } from "react-toastify";
+
 import PlayerDetailInfo from "./PlayerDetailInfo";
 import PlayerCommentList from "./PlayerCommentList";
 import CommentModal from "../../components/CommentModal";
-import { useNavigate, useParams } from "react-router-dom";
-import type { Player } from "../../model/Types";
+
+import { useAuthStore } from "../../stores/useAuthStore";
 import {
+  fetchPlayerById,
   addAComment,
   deleteAComment,
-  fetchPlayerById,
+  editAComment,
   type commentPayload,
+  type editCommentPayload,
 } from "../../services/playerService";
-import { toast } from "react-toastify";
-import { useAuthStore } from "../../stores/useAuthStore";
-import { Modal } from "antd";
+import type { Player } from "../../model/Types";
 
 function PlayerDetail() {
   const { playerId } = useParams<{ playerId: string }>();
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [player, setPlayer] = useState<Player | null>(null);
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
-  const navigation = useNavigate();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   useEffect(() => {
-    if (!playerId) return;
-    const getPlayerById = async (playerId: string) => {
-      try {
-        const res = await fetchPlayerById(playerId);
-        if (res.success) {
-          setPlayer(res.data);
-        } else {
-          console.log("Player not found ");
-        }
-      } catch (error) {
-        console.error("Lỗi khi lấy cầu thủ:", error);
-      }
-    };
-    getPlayerById(playerId);
+    if (playerId) loadPlayerDetail();
   }, [playerId]);
 
-  const requiredToOpenModal = () => {
-    if (!isAuthenticated) {
-      toast.warning("You have to login before comment");
-      navigation("/auth/login");
-      return;
+  const loadPlayerDetail = async () => {
+    try {
+      const res = await fetchPlayerById(playerId!);
+      if (res.success) {
+        setPlayer(res.data);
+      } else {
+        toast.error("Player not found.");
+      }
+    } catch (error) {
+      console.error("Error fetching player:", error);
     }
-    const currentUserId = user?.id;
-
-    const hasCommented = player?.comments?.some(
-      (comment) => comment.author._id === currentUserId
-    );
-
-    if (hasCommented) {
-      toast.warning("You have already commented on this player.");
-      return;
-    }
-
-    setIsModalOpen(true);
   };
 
   const handleAddComment = async (content: string, rating: number) => {
-    console.log(content);
-    console.log(rating);
     try {
-      const commentPayload: commentPayload = {
-        rating: rating,
-        content: content,
-        id: playerId,
-      };
-      console.log(commentPayload);
-      const res = await addAComment(commentPayload);
+      const payload: commentPayload = { content, rating, id: playerId! };
+      const res = await addAComment(payload);
       if (res.success) {
-        toast.success("Add a comment successful !");
+        toast.success("Comment added successfully!");
+        await loadPlayerDetail();
       }
     } catch (error) {
-      console.log(error);
+      console.error("Error adding comment:", error);
+      toast.error("Failed to add comment.");
     }
-    setIsModalOpen(false);
+
+    setIsAddModalOpen(false);
   };
 
   const handleDeleteComment = () => {
-    if (!playerId) return;
-
     Modal.confirm({
       title: "Are you sure?",
-      content:
-        "Do you really want to delete your comment? This action cannot be undone.",
+      content: "This will permanently delete your comment.",
       okText: "Yes, delete it",
       okType: "danger",
       cancelText: "Cancel",
       onOk: async () => {
         try {
-          const res = await deleteAComment(playerId);
+          const res = await deleteAComment(playerId!);
           if (res.success) {
-            toast.success(res.message || "Comment deleted successfully");
-            
-            const updated = await fetchPlayerById(playerId);
-            if (updated.success) {
-              setPlayer(updated.data);
-            }
+            toast.success(res.message || "Comment deleted.");
+            await loadPlayerDetail();
           }
         } catch (error) {
-          console.log(error);
-          toast.error("Failed to delete comment");
+          console.error("Error deleting comment:", error);
+          toast.error("Failed to delete comment.");
         }
       },
     });
   };
+
+  const handleEditComment = async (values: editCommentPayload): Promise<boolean> => {
+    try {
+      const res = await editAComment(playerId!, values);
+      if (res.success) {
+        toast.success("Comment updated!");
+        await loadPlayerDetail();
+        return true;
+      } else {
+        toast.error("Update failed.");
+        return false;
+      }
+    } catch (error) {
+      console.error("Error editing comment:", error);
+      toast.error("Something went wrong.");
+      return false;
+    }
+  };
+
+  const openAddCommentModal = () => {
+    if (!isAuthenticated) {
+      toast.warning("Please log in before commenting.");
+      navigate("/auth/login");
+      return;
+    }
+
+    if (hasUserCommented) {
+      toast.warning("You've already commented on this player.");
+      return;
+    }
+
+    setIsAddModalOpen(true);
+  };
+
+  const hasUserCommented = useMemo(() => {
+    return player?.comments?.some(
+      (comment) => comment.author._id === user?.id
+    );
+  }, [player?.comments, user?.id]);
+
+  const userRating = useMemo(() => {
+    const found = player?.comments?.find(
+      (comment) => comment.author._id === user?.id
+    );
+    return found?.rating ?? null;
+  }, [player?.comments, user?.id]);
 
   if (!player) {
     return (
@@ -115,6 +135,7 @@ function PlayerDetail() {
       </div>
     );
   }
+
   return (
     <div className="max-w-6xl mx-auto flex flex-col gap-10 p-6">
       <div className="flex flex-col md:flex-row gap-8 items-start">
@@ -126,16 +147,23 @@ function PlayerDetail() {
           />
         </section>
 
-        <PlayerDetailInfo player={player} isOpenModal={requiredToOpenModal} />
+        <PlayerDetailInfo
+          player={player}
+          isOpenModal={openAddCommentModal}
+          userRating={userRating}
+        />
+
         <CommentModal
-          open={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          open={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
           onAdd={handleAddComment}
         />
       </div>
+
       <PlayerCommentList
         comments={player.comments}
         onDelete={handleDeleteComment}
+        onEdit={handleEditComment}
       />
     </div>
   );
