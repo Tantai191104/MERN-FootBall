@@ -210,7 +210,6 @@ const ProfilePage: React.FC = () => {
     },
   ];
 
-  // 👇 Nếu không phải tài khoản Google thì mới cho đổi mật khẩu
   if (!user?.isGoogleAccount) {
     tabItems.push({
       key: "2",

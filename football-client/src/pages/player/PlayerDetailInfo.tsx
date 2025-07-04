@@ -50,7 +50,7 @@ function PlayerDetailInfo({ player, isOpenModal, userRating }: Props) {
           <p className="text-[#2563eb] font-semibold text-sm">
             You rated this player:
           </p>
-          <Rate disabled defaultValue={userRating} />
+          <Rate count={3} disabled defaultValue={userRating} />
         </div>
       )}
 
